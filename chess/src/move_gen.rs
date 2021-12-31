@@ -1,18 +1,20 @@
 #![allow(non_snake_case)]
 
 pub mod pseudo_attacks {
-    use crate::shift::*;
     use self::pawn::*;
+    use self::sliding::*;
+    use crate::board::display_bit_board;
+    use crate::shift::*;
 
-    pub fn wpawn_atks_pushes(wpawns: u64, empty: u64) -> u64 {
+    pub fn wpawn_attacks(wpawns: u64, empty: u64) -> u64 {
         wpawn_1push(wpawns, empty) | wpawn_2push(wpawns, empty) | wpawn_any_atk(wpawns)
     }
 
-    pub fn bpawn_atks_pushes(bpawns: u64, empty: u64) -> u64 {
+    pub fn bpawn_attacks(bpawns: u64, empty: u64) -> u64 {
         bpawn_1push(bpawns, empty) | bpawn_2push(bpawns, empty) | bpawn_any_atk(bpawns)
     }
 
-    pub fn knight_atks(knights: u64) -> u64 {
+    pub fn knight_attacks(knights: u64) -> u64 {
         let mut east = E_1(knights);
         let mut west = W_1(knights);
         let mut attacks = N_n(east | west, 2);
@@ -24,7 +26,22 @@ pub mod pseudo_attacks {
         attacks
     }
 
-    pub fn king_atks(mut kings: u64) -> u64 {
+    pub fn bishop_attacks(bishops: u64, empty: u64) -> u64 {
+        NE_atk(bishops, empty)
+            | SE_atk(bishops, empty)
+            | SW_atk(bishops, empty)
+            | NW_atk(bishops, empty)
+    }
+
+    pub fn rook_attacks(rooks: u64, empty: u64) -> u64 {
+        N_atk(rooks, empty) | E_atk(rooks, empty) | S_atk(rooks, empty) | W_atk(rooks, empty)
+    }
+
+    pub fn queen_attacks(queens: u64, empty: u64) -> u64 {
+        bishop_attacks(queens, empty) | rook_attacks(queens, empty)
+    }
+
+    pub fn king_attacks(mut kings: u64) -> u64 {
         let mut attacks = E_1(kings) | W_1(kings);
         kings |= attacks;
         attacks |= N_1(kings) | S_1(kings);
@@ -32,7 +49,7 @@ pub mod pseudo_attacks {
     }
 
     pub mod pawn {
-        use crate::{shift::*, board::consts::RANKS};
+        use crate::{board::consts::RANKS, shift::*};
 
         #[inline(always)]
         pub fn wpawn_1push(wpawns: u64, empty: u64) -> u64 {
@@ -66,7 +83,6 @@ pub mod pseudo_attacks {
             SW_1(bpawns) | SE_1(bpawns)
         }
     }
-
 
     pub mod sliding {
         use crate::move_gen::occluded_fill::*;
@@ -142,7 +158,7 @@ pub mod occluded_fill {
     #[inline(always)]
     pub fn E_ocl(mut pieces: u64, mut empty: u64) -> u64 {
         empty &= NOT_A;
-        pieces |= E_1(empty & pieces) ;
+        pieces |= E_1(empty & pieces);
         empty &= E_1(empty);
         pieces |= empty & pieces << (E_W * 2);
         empty &= empty << (E_W * 2);
@@ -153,7 +169,7 @@ pub mod occluded_fill {
     #[inline(always)]
     pub fn NE_ocl(mut pieces: u64, mut empty: u64) -> u64 {
         empty &= NOT_A;
-        pieces |= NE_1(empty & pieces) ;
+        pieces |= NE_1(empty & pieces);
         empty &= NE_1(empty);
         pieces |= empty & pieces << (NE_SW * 2);
         empty &= empty << (NE_SW * 2);
@@ -208,10 +224,10 @@ pub mod occluded_fill {
 
 #[cfg(test)]
 mod test {
-    use crate::board::consts::squares::*;
     #[allow(unused_imports)]
-    use crate::board::{consts::*, Board, display_bit_board};
-    use crate::move_gen::pseudo_attacks::{sliding::*, king_atks, knight_atks, wpawn_atks_pushes};
+    use crate::board::{consts::*, display_bit_board, Board};
+    use crate::move_gen::pseudo_attacks::{sliding::*, *};
+    use crate::{board::consts::squares::*, move_gen::pseudo_attacks::bishop_attacks};
 
     #[test]
     fn sliding_attack() {
@@ -224,7 +240,7 @@ mod test {
         assert_eq!(ns_attack, FILES[3] ^ D4);
         assert_eq!(ew_attack, RANKS[3] ^ D4);
         assert_eq!(ne_sw_attack, A1_H8_DIAG ^ D4);
-        assert_eq!(nw_se_attack, (G1 | F2 | E3 | D4 | C5 | B6 | A7) ^ D4);
+        assert_eq!(nw_se_attack, A7_G1_DIAG ^ D4);
     }
 
     #[test]
@@ -232,16 +248,40 @@ mod test {
         let mut board = Board::default();
         board.white_pawns |= B4;
 
-        assert_eq!(wpawn_atks_pushes(board.white_pawns, board.empty()), (RANKS[2] | RANKS[3] ^ B4) | A5 | B5 | C5);
+        assert_eq!(
+            wpawn_attacks(board.white_pawns, board.empty()),
+            (RANKS[2] | RANKS[3] ^ B4) | A5 | B5 | C5
+        );
     }
 
     #[test]
     fn knight_attack() {
-        assert_eq!(knight_atks(C3), B1 | D1 | A2 | E2 | A4 | E4 | B5 | D5);
+        assert_eq!(knight_attacks(C3), B1 | D1 | A2 | E2 | A4 | E4 | B5 | D5);
+    }
+
+    #[test]
+    fn bishop_attack() {
+        assert_eq!(
+            bishop_attacks(D4, UNIVERSAL),
+            (A1_H8_DIAG | A7_G1_DIAG) ^ D4
+        )
+    }
+
+    #[test]
+    fn rook_attack() {
+        assert_eq!(rook_attacks(D4, UNIVERSAL), (FILES[3] | RANKS[3]) ^ D4)
+    }
+
+    #[test]
+    fn queen_attack() {
+        assert_eq!(
+            queen_attacks(D4, UNIVERSAL),
+            (A1_H8_DIAG | A7_G1_DIAG | FILES[3] | RANKS[3]) ^ D4
+        )
     }
 
     #[test]
     fn king_attack() {
-        assert_eq!(king_atks(D4), C5 | D5 | E5 | C4 | E4 | C3 | D3 | E3);
+        assert_eq!(king_attacks(D4), C5 | D5 | E5 | C4 | E4 | C3 | D3 | E3);
     }
 }

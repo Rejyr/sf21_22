@@ -1,20 +1,8 @@
 #![allow(non_snake_case)]
-use crate::{board::maps::*, shift::N_1};
+use crate::{board::consts::*, shift::N_1};
 
-pub mod maps {
-    pub const EMPTY: u64 = 0;
-    pub const UNIVERSAL: u64 = 0xFFFFFFFFFFFFFFFF;
+pub mod consts;
 
-    pub const A_FILE: u64 = 0x0101010101010101;
-    pub const H_FILE: u64 = 0x8080808080808080;
-    pub const NOT_A: u64 = 0xFEFEFEFEFEFEFEFE;
-    pub const NOT_H: u64 = 0x7F7F7F7F7F7F7F7F;
-
-    pub const RANK_1: u64 = 0x00000000000000FF;
-    pub const RANK_8: u64 = 0xFF00000000000000;
-    pub const NOT_1: u64 = 0xFFFFFFFFFFFFFF00;
-    pub const NOT_8: u64 = 0x00FFFFFFFFFFFFFF;
-}
 
 // Little-Endian File-Rank mapping
 #[derive(Debug, Clone)]
@@ -34,6 +22,7 @@ pub struct Board {
 }
 
 impl Default for Board {
+    #[allow(clippy::unusual_byte_groupings)]
     fn default() -> Self {
         Self {
             white_pawns: 0x000000000000_FF_00,

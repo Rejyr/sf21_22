@@ -7,18 +7,18 @@ pub mod consts;
 // Little-Endian File-Rank mapping
 #[derive(Debug, Clone)]
 pub struct Board {
-    white_pawns: u64,
-    white_knights: u64,
-    white_bishops: u64,
-    white_rooks: u64,
-    white_queens: u64,
-    white_kings: u64,
-    black_pawns: u64,
-    black_knights: u64,
-    black_bishops: u64,
-    black_rooks: u64,
-    black_queens: u64,
-    black_kings: u64,
+    pub white_pawns: u64,
+    pub white_knights: u64,
+    pub white_bishops: u64,
+    pub white_rooks: u64,
+    pub white_queens: u64,
+    pub white_kings: u64,
+    pub black_pawns: u64,
+    pub black_knights: u64,
+    pub black_bishops: u64,
+    pub black_rooks: u64,
+    pub black_queens: u64,
+    pub black_kings: u64,
 }
 
 impl Default for Board {

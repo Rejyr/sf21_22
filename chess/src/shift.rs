@@ -57,6 +57,16 @@ pub fn SW_1(b: u64) -> u64 {
     (b & NOT_A) >> NE_SW
 }
 
+#[inline(always)]
+pub fn N_n(b: u64, n: usize) -> u64 {
+    b << (N_S * n)
+}
+
+#[inline(always)]
+pub fn S_n(b: u64, n: usize) -> u64 {
+    b >> (N_S * n)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::chess::{board::maps::*, shift::N_1};
+use crate::{board::maps::*, shift::N_1};
 
 pub mod maps {
     pub const EMPTY: u64 = 0;

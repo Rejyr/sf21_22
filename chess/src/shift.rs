@@ -7,7 +7,7 @@ pub mod offsets {
     pub const NW_SE: usize = 7;
 }
 
-use crate::chess::{board::maps::*, shift::offsets::*};
+use crate::{board::maps::*, shift::offsets::*};
 
 pub fn shift(b: u64, s: isize) -> u64 {
     if s > 0 {

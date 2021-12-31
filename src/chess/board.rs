@@ -1,15 +1,20 @@
 #![allow(non_snake_case)]
+use crate::chess::{board::maps::*, shift::N_1};
 
-pub const EMPTY: u64 = 0;
-pub const UNIVERSAL: u64 = 0xFFFFFFFFFFFFFFFF;
+pub mod maps {
+    pub const EMPTY: u64 = 0;
+    pub const UNIVERSAL: u64 = 0xFFFFFFFFFFFFFFFF;
 
-pub const A_FILE: u64 = 0x0101010101010101;
-pub const H_FILE: u64 = 0x8080808080808080;
-pub const NOT_A: u64 = 0xfefefefefefefefe;
-pub const NOT_H: u64 = 0x7f7f7f7f7f7f7f7f;
+    pub const A_FILE: u64 = 0x0101010101010101;
+    pub const H_FILE: u64 = 0x8080808080808080;
+    pub const NOT_A: u64 = 0xFEFEFEFEFEFEFEFE;
+    pub const NOT_H: u64 = 0x7F7F7F7F7F7F7F7F;
 
-pub const RANK_1: u64 = 0x00000000000000FF;
-pub const RANK_8: u64 = 0xFF00000000000000;
+    pub const RANK_1: u64 = 0x00000000000000FF;
+    pub const RANK_8: u64 = 0xFF00000000000000;
+    pub const NOT_1: u64 = 0xFFFFFFFFFFFFFF00;
+    pub const NOT_8: u64 = 0x00FFFFFFFFFFFFFF;
+}
 
 // Little-Endian File-Rank mapping
 #[derive(Debug, Clone)]
@@ -88,98 +93,9 @@ pub fn display_bit_board(b: u64) {
     println!("01234567");
 }
 
-pub fn shift(b: u64, s: isize) -> u64 {
-    if s > 0 {
-        b << s
-    } else {
-        b >> -s
-    }
-}
-
-#[inline(always)]
-pub fn N_1(b: u64) -> u64 {
-    b << 8
-}
-
-#[inline(always)]
-pub fn S_1(b: u64) -> u64 {
-    b >> 8
-}
-
-#[inline(always)]
-pub fn E_1(b: u64) -> u64 {
-    (b & NOT_H) << 1
-}
-
-#[inline(always)]
-pub fn NE_1(b: u64) -> u64 {
-    (b & NOT_H) << 9
-}
-
-#[inline(always)]
-pub fn SE_1(b: u64) -> u64 {
-    (b & NOT_H) >> 7
-}
-
-#[inline(always)]
-pub fn W_1(b: u64) -> u64 {
-    (b & NOT_A) >> 1
-}
-
-#[inline(always)]
-pub fn NW_1(b: u64) -> u64 {
-    (b & NOT_A) << 7
-}
-
-#[inline(always)]
-pub fn SW_1(b: u64) -> u64 {
-    (b & NOT_A) >> 9
-}
-
-#[inline(always)]
-pub fn N_n(b: u64, n: usize) -> u64 {
-    b << (8 * n)
-}
-
-#[inline(always)]
-pub fn S_n(b: u64, n: usize) -> u64 {
-    b >> (8 * n)
-}
-
-#[inline(always)]
-pub fn E_n(b: u64, n: usize) -> u64 {
-    (b & NOT_H) << (1 * n)
-}
-
-#[inline(always)]
-pub fn NE_n(b: u64, n: usize) -> u64 {
-    (b & NOT_H) << (9 * n)
-}
-
-#[inline(always)]
-pub fn SE_n(b: u64, n: usize) -> u64 {
-    (b & NOT_H) >> (7 * n)
-}
-
-#[inline(always)]
-pub fn W_n(b: u64, n: usize) -> u64 {
-    (b & NOT_A) >> (1 * n)
-}
-
-#[inline(always)]
-pub fn NW_n(b: u64, n: usize) -> u64 {
-    (b & NOT_A) << (7 * n)
-}
-
-#[inline(always)]
-pub fn SW_n(b: u64, n: usize) -> u64 {
-    (b & NOT_A) >> (9 * n)
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::chess::board::shift::*;
 
     #[test]
     fn default_board() {
@@ -196,19 +112,5 @@ mod test {
         let b = Board::default();
 
         display_bit_board(b.white_pawns);
-    }
-
-    #[test]
-    fn shift() {
-        let b = UNIVERSAL;
-
-        assert_eq!(N_1(b), 0xFFFFFFFFFFFFFF00);
-        assert_eq!(NE_1(b), 0xFEFEFEFEFEFEFE00);
-        assert_eq!(E_1(b), 0xFEFEFEFEFEFEFEFE);
-        assert_eq!(SE_1(b), 0x00FEFEFEFEFEFEFE);
-        assert_eq!(S_1(b), 0x00FFFFFFFFFFFFFF);
-        assert_eq!(SW_1(b), 0x007F7F7F7F7F7F7F);
-        assert_eq!(W_1(b), 0x7F7F7F7F7F7F7F7F);
-        assert_eq!(NW_1(b), 0x7F7F7F7F7F7F7F00);
     }
 }

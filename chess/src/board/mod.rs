@@ -3,7 +3,6 @@ use crate::{board::consts::*, shift::N_1};
 
 pub mod consts;
 
-
 // Little-Endian File-Rank mapping
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -69,7 +68,7 @@ impl Board {
     }
 }
 
-pub fn display_bit_board(b: u64) {
+pub fn display_bb(b: u64) {
     let mut b = b;
     // get rank 8 and shift up, otherwise displays displays lower ranks higher up (flipped)
     for i in 0..8 {
@@ -80,6 +79,30 @@ pub fn display_bit_board(b: u64) {
     println!("--------*");
     println!("abcdefgh");
     println!("01234567");
+}
+
+// De Bruijn mulutiplication with separated LS1B
+// https://www.chessprogramming.org/BitScan
+pub fn bit_scan_forward(b: u64) -> u8 {
+    const DEBRUIJN_ARR: [u8; 64] = [
+        0, 47, 1, 56, 48, 27, 2, 60, 57, 49, 41, 37, 28, 16, 3, 61, 54, 58, 35, 52, 50, 42, 21, 44,
+        38, 32, 29, 23, 17, 11, 4, 62, 46, 55, 26, 59, 40, 36, 15, 53, 34, 51, 20, 43, 31, 22, 10,
+        45, 25, 39, 14, 33, 19, 30, 9, 24, 13, 18, 8, 12, 7, 6, 5, 63,
+    ];
+    const DEBRUIJN_NUM: u64 = 0x03f79d71b4cb0a89;
+
+    assert_ne!(b, 0);
+    DEBRUIJN_ARR[((b ^ b.wrapping_sub(1)).wrapping_mul(DEBRUIJN_NUM) >> 58) as usize]
+}
+
+pub fn serialize_bb(mut b: u64) -> Vec<u8> {
+    let mut idxs = vec![];
+    while b != 0 {
+        idxs.push(bit_scan_forward(b));
+
+        b &= b.wrapping_sub(1); // reset LS1B
+    }
+    idxs
 }
 
 #[cfg(test)]
@@ -100,6 +123,14 @@ mod test {
     fn display_bitboards() {
         let b = Board::default();
 
-        display_bit_board(b.white_pawns);
+        display_bb(b.white_pawns);
+    }
+
+    #[test]
+    fn bitboard_serialization() {
+        assert_eq!(
+            serialize_bb(UNIVERSAL),
+            (0..64).into_iter().collect::<Vec<_>>()
+        )
     }
 }

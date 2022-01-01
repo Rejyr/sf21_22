@@ -3,7 +3,7 @@
 pub mod pseudo_attacks {
     use self::pawn::*;
     use self::sliding::*;
-    use crate::board::display_bit_board;
+    use crate::board::display_bb;
     use crate::shift::*;
 
     pub fn wpawn_attacks(wpawns: u64, empty: u64) -> u64 {
@@ -225,7 +225,7 @@ pub mod occluded_fill {
 #[cfg(test)]
 mod test {
     #[allow(unused_imports)]
-    use crate::board::{consts::*, display_bit_board, Board};
+    use crate::board::{consts::*, display_bb, Board};
     use crate::move_gen::pseudo_attacks::{sliding::*, *};
     use crate::{board::consts::squares::*, move_gen::pseudo_attacks::bishop_attacks};
 

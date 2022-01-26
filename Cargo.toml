@@ -6,3 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+board-game = "0.4.2"
+chess = "3.2.0"
+internal-iterator = "0.2.0"
+rand = "0.8.4"

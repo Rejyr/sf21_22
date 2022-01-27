@@ -17,7 +17,6 @@ use chess::ChessMove;
 use chess::Color;
 use consts::RANKS;
 
-use crate::consts::EMPTY;
 use crate::consts::START_POS_BLACK;
 use crate::consts::START_POS_WHITE;
 
@@ -36,7 +35,43 @@ pub struct Board {
 
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        let mut white = self.white.0;
+        let mut black = self.black.0;
+
+        // get 8th rank, shift up
+        for i in 0..8 {
+            // shrink into u8
+            let mut w_rank = ((white & RANKS[7]) >> 56) as u8;
+            let mut b_rank = ((black & RANKS[7]) >> 56) as u8;
+
+            for _ in 0..8 {
+                // get first
+                let w_sq = w_rank & 1;
+                let b_sq = b_rank & 1;
+
+                match (w_sq, b_sq) {
+                    (0, 0) => f.write_str(" ")?,
+                    (1, 0) => f.write_str("♙")?, // white pawn
+                    (0, 1) => f.write_str("♟︎")?, // black pawn
+                    (1, 1) => panic!("Board has two pawns in the same place"),
+                    _ => {}
+                }
+
+                w_rank >>= 1;
+                b_rank >>= 1;
+            }
+
+            f.write_fmt(format_args!("|{}\n", 8 - i))?;
+            // shift board up 1
+            white <<= 8;
+            black <<= 8;
+        }
+
+        f.write_str("--------*\n")?;
+        f.write_str("abcdefgh\n")?;
+        f.write_str("01234567\n")?;
+
+        Ok(())
     }
 }
 
@@ -44,8 +79,8 @@ impl Board {
     pub fn new(size: usize) -> Self {
         assert!(size > 2 && size < 9, "Invalid size, must be 3 to 8");
         Board {
-            white: BitBoard(START_POS_WHITE[size]),
-            black: BitBoard(START_POS_BLACK[size]),
+            white: BitBoard(START_POS_WHITE[size - 1]),
+            black: BitBoard(START_POS_BLACK[size - 1]),
             side_to_move: Color::White,
             size,
         }
@@ -172,7 +207,7 @@ impl MoveGen {
         let mut movelist = vec![];
         for src in board.pieces_to_move() {
             let moves = get_pawn_moves(src, board.side_to_move, board.occupied());
-            if moves != BitBoard(0) {
+            if moves != EMPTY_BB {
                 movelist.push(SquareAndBitBoard { sq: src, bb: moves })
             }
         }
@@ -188,7 +223,7 @@ impl ExactSizeIterator for MoveGen {
     fn len(&self) -> usize {
         let mut len = 0;
         for moves in &self.moves {
-            if moves.bb == BitBoard(0) {
+            if moves.bb == EMPTY_BB {
                 break;
             }
 
@@ -206,7 +241,7 @@ impl Iterator for MoveGen {
         let dest = moves.bb.to_square();
 
         moves.bb ^= BitBoard::from_square(dest);
-        if moves.bb == BitBoard(0) {
+        if moves.bb == EMPTY_BB {
             self.index += 1;
         }
         Some(ChessMove::new(moves.sq, dest, None))

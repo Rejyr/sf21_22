@@ -5,6 +5,7 @@ use consts::EMPTY_BB;
 use internal_iterator::Internal;
 use internal_iterator::InternalIterator;
 use internal_iterator::IteratorExt;
+use std::cmp::Ordering;
 use std::fmt::Display;
 use std::ops::ControlFlow;
 
@@ -13,7 +14,6 @@ use board_game::board::BoardMoves;
 use board_game::board::Player;
 use board_game::board::UnitSymmetryBoard;
 use chess::BitBoard;
-use chess::ChessMove;
 use chess::Color;
 use consts::RANKS;
 
@@ -23,6 +23,8 @@ use crate::consts::START_POS_WHITE;
 // TODO: perft and tests
 // TODO: Display implementation
 
+#[cfg(test)]
+mod tests;
 pub mod consts;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -108,6 +110,14 @@ impl Board {
         self.pieces_mut(self.side_to_move)
     }
 
+    pub fn pieces_not_to_move(&self) -> BitBoard {
+        self.pieces(!self.side_to_move)
+    }
+
+    pub fn pieces_not_to_move_mut(&mut self) -> &mut BitBoard {
+        self.pieces_mut(!self.side_to_move)
+    }
+
     pub fn empty(&self) -> BitBoard {
         !self.occupied()
     }
@@ -120,7 +130,7 @@ impl Board {
 impl UnitSymmetryBoard for Board {}
 
 impl BoardTrait for Board {
-    type Move = ChessMove;
+    type Move = Move;
 
     fn next_player(&self) -> board_game::board::Player {
         match self.side_to_move {
@@ -134,7 +144,10 @@ impl BoardTrait for Board {
     }
 
     fn play(&mut self, mv: Self::Move) {
-        *self.pieces_to_move_mut() = BitBoard::from_square(mv.get_source()) | BitBoard::from_square(mv.get_dest());
+        let src_bb = BitBoard::from_square(mv.src);
+        let dest_bb = BitBoard::from_square(mv.dest);
+        *self.pieces_to_move_mut() ^= src_bb | dest_bb;
+        *self.pieces_not_to_move_mut() &= !dest_bb;
         self.side_to_move = !self.side_to_move;
     }
 
@@ -172,7 +185,7 @@ impl<'a> BoardMoves<'a, Board> for Board {
 pub struct AllMoves;
 
 impl InternalIterator for AllMoves {
-    type Item = ChessMove;
+    type Item = Move;
 
     fn try_for_each<R, F>(self, mut f: F) -> std::ops::ControlFlow<R>
     where
@@ -180,11 +193,7 @@ impl InternalIterator for AllMoves {
     {
         for from in chess::ALL_SQUARES {
             for to in chess::ALL_SQUARES {
-                f(ChessMove::new(from, to, None))?;
-
-                for piece in chess::PROMOTION_PIECES {
-                    f(ChessMove::new(from, to, Some(piece)))?;
-                }
+                f(Move::new(from, to))?;
             }
         }
 
@@ -200,6 +209,40 @@ pub struct SquareAndBitBoard {
 pub struct MoveGen {
     moves: Vec<SquareAndBitBoard>,
     index: usize,
+}
+
+// trimmed ChessMove from chess
+#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Default, Debug, Hash)]
+pub struct Move {
+    src: Square,
+    dest: Square,
+}
+
+impl Display for Move {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}{}", self.src, self.dest)
+    }
+}
+
+impl Ord for Move {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        if self.src != other.src {
+            return self.src.cmp(&other.src)
+        } if self.dest != other.dest {
+            self.dest.cmp(&other.dest)
+        } else {
+            Ordering::Equal
+        }
+    }
+}
+
+impl Move {
+    pub fn new(src: Square, dest: Square) -> Move {
+        Move {
+            src,
+            dest,
+        }
+    }
 }
 
 impl MoveGen {
@@ -234,7 +277,7 @@ impl ExactSizeIterator for MoveGen {
 }
 
 impl Iterator for MoveGen {
-    type Item = ChessMove;
+    type Item = Move;
 
     fn next(&mut self) -> Option<Self::Item> {
         let moves = &mut self.moves.get_mut(self.index)?;
@@ -244,6 +287,6 @@ impl Iterator for MoveGen {
         if moves.bb == EMPTY_BB {
             self.index += 1;
         }
-        Some(ChessMove::new(moves.sq, dest, None))
+        Some(Move::new(moves.sq, dest))
     }
 }

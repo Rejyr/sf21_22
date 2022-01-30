@@ -1,4 +1,4 @@
-use sf21_22::Board;
+use sf21_22::board::Board;
 
 fn main() {
     for i in 3..=8 {

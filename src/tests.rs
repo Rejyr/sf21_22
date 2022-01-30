@@ -1,8 +1,14 @@
 use std::{collections::HashMap, hash::Hash};
 
-use super::*;
+use super::board::*;
+use super::move_gen::*;
 
 use board_game::board::Board as BoardTrait;
+use board_game::board::BoardMoves;
+use board_game::board::Outcome;
+use board_game::board::Player;
+use chess::Square;
+use internal_iterator::InternalIterator;
 
 // tweaked perft from board-game
 pub fn perft<B: BoardTrait>(board: &B, depth: u32) -> u64 {

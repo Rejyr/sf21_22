@@ -1,6 +1,7 @@
 use board_game::board::Outcome;
-use chess::get_pawn_moves;
+use chess::get_pawn_attacks;
 use chess::Square;
+use chess::get_pawn_quiets;
 use consts::EMPTY_BB;
 use internal_iterator::Internal;
 use internal_iterator::InternalIterator;
@@ -152,7 +153,7 @@ impl BoardTrait for Board {
     }
 
     fn outcome(&self) -> Option<board_game::board::Outcome> {
-        if self.white & BitBoard(RANKS[self.size]) != EMPTY_BB {
+        if self.white & BitBoard(RANKS[self.size - 1]) != EMPTY_BB {
             Some(Outcome::WonBy(Player::A))
         } else if self.black & BitBoard(RANKS[0]) != EMPTY_BB {
             Some(Outcome::WonBy(Player::B))
@@ -249,7 +250,7 @@ impl MoveGen {
     pub fn new(board: &Board) -> MoveGen {
         let mut movelist = vec![];
         for src in board.pieces_to_move() {
-            let moves = get_pawn_moves(src, board.side_to_move, board.occupied());
+            let moves = get_pawn_quiets(src, board.side_to_move, board.occupied()) ^ get_pawn_attacks(src, board.side_to_move, board.pieces_not_to_move());
             if moves != EMPTY_BB {
                 movelist.push(SquareAndBitBoard { sq: src, bb: moves })
             }

@@ -32,14 +32,14 @@ pub fn material_eval(bb: u64) -> u32 {
     bb.count_ones()
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MaterialHeuristic;
 
 impl Heuristic<Board> for MaterialHeuristic {
     type V = i32;
 
     fn value(&self, board: &Board, _depth: u32) -> Self::V {
-        material_eval(board.pieces_to_move().0) as i32
+        material_eval(board.pieces_to_move().0) as i32 - material_eval(board.pieces_not_to_move().0) as i32
     }
 
     fn merge(old: Self::V, new: Self::V) -> (Self::V, std::cmp::Ordering) {
@@ -47,7 +47,7 @@ impl Heuristic<Board> for MaterialHeuristic {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AdvancementHeuristic;
 
 impl Heuristic<Board> for AdvancementHeuristic {

@@ -9,13 +9,19 @@ pub struct SquareAndBitBoard {
     bb: BitBoard,
 }
 
+pub enum Mask {
+    None,
+    Capture,
+    Push,
+}
+
 pub struct MoveGen {
     moves: Vec<SquareAndBitBoard>,
     index: usize,
 }
 
 // trimmed ChessMove from chess
-#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Default, Debug, Hash)]
+#[derive(Clone, Copy, Eq, PartialEq, Default, Debug, Hash)]
 pub struct Move {
     src: Square,
     dest: Square,
@@ -30,12 +36,18 @@ impl Display for Move {
 impl Ord for Move {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         if self.src != other.src {
-            return self.src.cmp(&other.src)
-        } if self.dest != other.dest {
+            self.src.cmp(&other.src)
+        } else if self.dest != other.dest {
             self.dest.cmp(&other.dest)
         } else {
             Ordering::Equal
         }
+    }
+}
+
+impl PartialOrd for Move {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -57,10 +69,14 @@ impl Move {
 }
 
 impl MoveGen {
-    pub fn new(board: &Board) -> MoveGen {
+    pub fn with_mask(board: &Board, mask: Mask) -> MoveGen {
         let mut movelist = vec![];
         for src in board.pieces_to_move() {
-            let moves = get_pawn_quiets(src, board.side_to_move(), board.occupied()) ^ get_pawn_attacks(src, board.side_to_move(), board.pieces_not_to_move());
+            let moves = match mask {
+                Mask::None => get_pawn_quiets(src, board.side_to_move(), board.occupied()) ^ get_pawn_attacks(src, board.side_to_move(), board.pieces_not_to_move()),
+                Mask::Capture => get_pawn_attacks(src, board.side_to_move(), board.pieces_not_to_move()),
+                Mask::Push => get_pawn_quiets(src, board.side_to_move(), board.occupied()),
+            };
             if moves != EMPTY_BB {
                 movelist.push(SquareAndBitBoard { sq: src, bb: moves })
             }
@@ -70,6 +86,11 @@ impl MoveGen {
             moves: movelist,
             index: 0,
         }
+    }
+
+    pub fn new(board: &Board) -> MoveGen {
+        MoveGen::with_mask(board, Mask::None)
+
     }
 }
 

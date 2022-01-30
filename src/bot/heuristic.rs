@@ -1,9 +1,11 @@
-use std::cmp::max;
+use std::{cmp::max, fmt::Debug};
 
-use board_game::ai::minimax::Heuristic;
+use board_game::ai::{minimax::Heuristic, Bot};
 use chess::Color;
+use internal_iterator::IteratorExt;
+use rand::{Rng, prelude::IteratorRandom};
 
-use crate::board::Board;
+use crate::{board::Board, move_gen::{MoveGen, Mask}};
 
 #[allow(non_snake_case)]
 pub fn N_fill(mut bb: u64) -> u64 {
@@ -59,5 +61,27 @@ impl Heuristic<Board> for AdvancementHeuristic {
 
     fn merge(old: Self::V, new: Self::V) -> (Self::V, std::cmp::Ordering) {
         (max(old, new), new.cmp(&old))
+    }
+}
+
+#[derive(Debug)]
+pub struct PawnPusherBot<R: Rng> {
+    rng: R,
+}
+
+impl<R: Rng + Debug> Bot<Board> for PawnPusherBot<R> {
+    fn select_move(&mut self, board: &Board) -> <Board as board_game::board::Board>::Move {
+        MoveGen::with_mask(board, Mask::Push).choose(&mut self.rng).unwrap()
+    }
+}
+
+#[derive(Debug)]
+pub struct AlwaysCaptureBot<R: Rng> {
+    rng: R,
+}
+
+impl<R: Rng + Debug> Bot<Board> for AlwaysCaptureBot<R> {
+    fn select_move(&mut self, board: &Board) -> <Board as board_game::board::Board>::Move {
+        MoveGen::with_mask(board, Mask::Capture).choose(&mut self.rng).unwrap()
     }
 }

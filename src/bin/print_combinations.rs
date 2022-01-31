@@ -14,7 +14,7 @@ fn main() {
     for bot_l in bots {
         for bot_r in bots {
             println!(
-                r#"buf.write_fmt(format_args!("{{:?}}", x(run(|| Board::new(size), || {}, || {}, GAMES_PER_SIDE, BOTH_SIDES, |_, _| {{}})))).unwrap();"#,
+                r#"r!(buf, size, || {}, || {});"#,
                 bot_l, bot_r
             );
         }

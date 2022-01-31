@@ -26,102 +26,108 @@ fn main() {
     // let board_size = [3, 4];
     for size in board_size {
         println!("size: {size}");
-        buf.write_fmt(format_args!("size: {size}\n\n\n")).unwrap();
+        buf.write_fmt(format_args!("\n\nsize: {size}\n\n")).unwrap();
 
+        r!(buf, size, || RandomBot::new(thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || RandomBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-        buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || RandomBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || AlwaysPushBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysPushBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || AlwaysCaptureBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || AlwaysCaptureBot::new(thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || RandomBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
-buf.write_fmt(format_args!("{:?}", x(run(|| Board::new(size), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), GAMES_PER_SIDE, BOTH_SIDES, |_, _| {})))).unwrap();
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || RandomBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || AlwaysPushBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || AlwaysCaptureBot::new(thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, SolverHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MiniMaxBot::new(MIN_MAX_DEPTH, AdvancementHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, MaterialHeuristic, thread_rng()));
+r!(buf, size, || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()), || MCTSHeuristicBot::new(MCTS_ITERATIONS, MCTS_EXPLORATION, AdvancementHeuristic, thread_rng()));
 
 
     }
     buf.flush().unwrap()
+}
+
+#[macro_export]
+macro_rules! r {
+    ($buf:expr, $size:expr, $l:expr, $r:expr) => {
+        $buf.write_fmt(format_args!("{:?}", x(run(|| Board::new($size), $l, $r, GAMES_PER_SIDE, BOTH_SIDES, |_,_| {})))).unwrap();
+    };
 }
 
 pub struct BotResult {

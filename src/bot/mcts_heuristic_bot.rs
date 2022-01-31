@@ -211,7 +211,7 @@ pub fn mcts_build_tree<B: Board>(
     tree
 }
 
-pub struct MCTSBot<B: Board, H: Heuristic<B>, R: Rng> {
+pub struct MCTSHeuristicBot<B: Board, H: Heuristic<B>, R: Rng> {
     iterations: u64,
     exploration_weight: f32,
     heuristic: H,
@@ -219,20 +219,20 @@ pub struct MCTSBot<B: Board, H: Heuristic<B>, R: Rng> {
     place_holder: PhantomData<B>,
 }
 
-impl<B: Board, H: Heuristic<B>, R: Rng> Debug for MCTSBot<B, H, R> {
+impl<B: Board, H: Heuristic<B>, R: Rng> Debug for MCTSHeuristicBot<B, H, R> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "MCTSBot {{ iterations: {}, exploration_weight: {} }}",
-            self.iterations, self.exploration_weight
+            "MCTSHeuristicBot {{ iterations: {}, exploration_weight: {}, heuristic: {:?} }}",
+            self.iterations, self.exploration_weight, self.heuristic,
         )
     }
 }
 
-impl<B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone, R: Rng> MCTSBot<B, H, R> {
+impl<B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone, R: Rng> MCTSHeuristicBot<B, H, R> {
     pub fn new(iterations: u64, exploration_weight: f32, heuristic: H, rng: R) -> Self {
         assert!(iterations > 0);
-        MCTSBot {
+        MCTSHeuristicBot {
             iterations,
             exploration_weight,
             heuristic,
@@ -252,7 +252,7 @@ impl<B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone, R: Rng> MCTSBot<B, H
     }
 }
 
-impl<R: Rng, B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone> Bot<B> for MCTSBot<B, H, R> {
+impl<R: Rng, B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone> Bot<B> for MCTSHeuristicBot<B, H, R> {
     fn select_move(&mut self, board: &B) -> B::Move {
         assert!(!board.is_done());
         self.build_tree(board).best_move()

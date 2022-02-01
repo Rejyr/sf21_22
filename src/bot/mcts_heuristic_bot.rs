@@ -79,7 +79,7 @@ fn mcts_solver_step<B: Board>(
     curr_node: usize,
     curr_board: &B,
     exploration_weight: f32,
-    heuristic: impl Heuristic<B, V = impl Into<f32>> + Clone,
+    heuristic: impl Heuristic<B, V = i32> + Clone,
     rng: &mut impl Rng,
 ) -> (OutcomeWDL, bool) {
     //TODO should we decrement visit count? -> meh, then we're pulling search time towards partially solved branches
@@ -142,7 +142,7 @@ fn mcts_solver_step<B: Board>(
         let picked = children
             .iter()
             .max_by_key(|&c| {
-                N32::from(uct_heuristic(&tree[c], parent_visits, exploration_weight, heuristic.value(curr_board, 0).into()))
+                N32::from(uct_heuristic(&tree[c], parent_visits, exploration_weight, heuristic.value(curr_board, 0) as f32))
             })
             .unwrap();
 
@@ -180,7 +180,7 @@ pub fn mcts_build_tree<B: Board>(
     root_board: &B,
     iterations: u64,
     exploration_weight: f32,
-    heuristic: impl Heuristic<B, V = impl Into<f32>> + Clone,
+    heuristic: impl Heuristic<B, V = i32> + Clone,
     rng: &mut impl Rng,
 ) -> Tree<B> {
     assert!(iterations > 0);
@@ -229,7 +229,7 @@ impl<B: Board, H: Heuristic<B>, R: Rng> Debug for MCTSHeuristicBot<B, H, R> {
     }
 }
 
-impl<B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone, R: Rng> MCTSHeuristicBot<B, H, R> {
+impl<B: Board, H: Heuristic<B, V = i32> + Clone, R: Rng> MCTSHeuristicBot<B, H, R> {
     pub fn new(iterations: u64, exploration_weight: f32, heuristic: H, rng: R) -> Self {
         assert!(iterations > 0);
         MCTSHeuristicBot {
@@ -252,7 +252,7 @@ impl<B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone, R: Rng> MCTSHeuristi
     }
 }
 
-impl<R: Rng, B: Board, H: Heuristic<B, V = impl Into<f32>> + Clone> Bot<B> for MCTSHeuristicBot<B, H, R> {
+impl<R: Rng, B: Board, H: Heuristic<B, V = i32> + Clone> Bot<B> for MCTSHeuristicBot<B, H, R> {
     fn select_move(&mut self, board: &B) -> B::Move {
         assert!(!board.is_done());
         self.build_tree(board).best_move()

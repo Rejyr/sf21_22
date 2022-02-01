@@ -31,6 +31,7 @@ pub fn graph_data(results: &Results) {
         MiniMaxAdvance,
         MiniMaxCapture,
         MCTS,
+        MCTSSolver,
         MCTSAdvance,
         MCTSCapture,
     ];
@@ -61,6 +62,7 @@ pub enum BotType {
     MiniMaxAdvance,
     MiniMaxCapture,
     MCTS,
+    MCTSSolver,
     MCTSAdvance,
     MCTSCapture,
 }
@@ -73,10 +75,11 @@ impl FromStr for BotType {
 "RandomBot" => Random,
 "AlwaysPushBot" => AlwaysPush,
 "AlwaysCaptureBot" => AlwaysCapture,
-"MiniMaxBot { depth: 10, heuristic: SolverHeuristic }" => MiniMax,
+"MiniMaxBot { depth: 10, heuristic: SolverHeuristicSimplified }" => MiniMax,
 "MiniMaxBot { depth: 10, heuristic: MaterialHeuristic }" => MiniMaxCapture,
 "MiniMaxBot { depth: 10, heuristic: AdvancementHeuristic }" => MiniMaxAdvance,
 "MCTSBot { iterations: 10000, exploration_weight: 2 }" => MCTS,
+"MCTSHeuristicBot { iterations: 10000, exploration_weight: 2, heuristic: SolverHeuristicSimplified }" => MCTSSolver,
 "MCTSHeuristicBot { iterations: 10000, exploration_weight: 2, heuristic: MaterialHeuristic }" => MCTSCapture,
 "MCTSHeuristicBot { iterations: 10000, exploration_weight: 2, heuristic: AdvancementHeuristic }" => MCTSAdvance,
 _ => return Err(io::Error::new(ErrorKind::InvalidData, format!("Expected bot Debug value, got {}", s)))

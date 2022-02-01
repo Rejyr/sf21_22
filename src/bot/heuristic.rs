@@ -1,7 +1,7 @@
 use std::{cmp::max, fmt::Debug};
 
 use board_game::{
-    ai::{minimax::Heuristic, Bot},
+    ai::{minimax::Heuristic, solver::SolverHeuristic, Bot},
     board::Board as BoardTrait,
 };
 use chess::Color;
@@ -40,14 +40,33 @@ pub fn material_eval(bb: u64) -> u32 {
 }
 
 #[derive(Debug, Clone)]
+pub struct SolverHeuristicSimplified;
+
+impl Heuristic<Board> for SolverHeuristicSimplified {
+    type V = i32;
+
+    fn value(&self, board: &Board, depth: u32) -> Self::V {
+        SolverHeuristic.value(board, depth).to_i32()
+    }
+
+    fn merge(old: Self::V, new: Self::V) -> (Self::V, std::cmp::Ordering) {
+        (max(old, new), new.cmp(&old))
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct MaterialHeuristic;
 
 impl Heuristic<Board> for MaterialHeuristic {
-    type V = i16;
+    type V = i32;
 
-    fn value(&self, board: &Board, _depth: u32) -> Self::V {
-        material_eval(board.pieces_to_move().0) as i16
-            - material_eval(board.pieces_not_to_move().0) as i16
+    fn value(&self, board: &Board, depth: u32) -> Self::V {
+        if board.is_done() {
+            return SolverHeuristicSimplified.value(board, depth);
+        }
+
+        material_eval(board.pieces_to_move().0) as i32
+            - material_eval(board.pieces_not_to_move().0) as i32
     }
 
     fn merge(old: Self::V, new: Self::V) -> (Self::V, std::cmp::Ordering) {
@@ -59,10 +78,14 @@ impl Heuristic<Board> for MaterialHeuristic {
 pub struct AdvancementHeuristic;
 
 impl Heuristic<Board> for AdvancementHeuristic {
-    type V = i16;
+    type V = i32;
 
-    fn value(&self, board: &Board, _depth: u32) -> Self::V {
-        advancement_eval(board.pieces_to_move().0, board.side_to_move()) as i16
+    fn value(&self, board: &Board, depth: u32) -> Self::V {
+        if board.is_done() {
+            return SolverHeuristicSimplified.value(board, depth);
+        }
+
+        advancement_eval(board.pieces_to_move().0, board.side_to_move()) as i32
     }
 
     fn merge(old: Self::V, new: Self::V) -> (Self::V, std::cmp::Ordering) {
@@ -90,9 +113,7 @@ impl<R: Rng + Debug> Bot<Board> for AlwaysPushBot<R> {
 
 impl<R: Rng> AlwaysPushBot<R> {
     pub fn new(rng: R) -> Self {
-        AlwaysPushBot {
-            rng,
-        }
+        AlwaysPushBot { rng }
     }
 }
 
@@ -116,8 +137,6 @@ impl<R: Rng + Debug> Bot<Board> for AlwaysCaptureBot<R> {
 
 impl<R: Rng> AlwaysCaptureBot<R> {
     pub fn new(rng: R) -> Self {
-        AlwaysCaptureBot {
-            rng,
-        }
+        AlwaysCaptureBot { rng }
     }
 }

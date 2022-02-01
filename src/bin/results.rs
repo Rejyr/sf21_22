@@ -2,24 +2,57 @@ use std::{
     collections::HashMap,
     fs::File,
     io::{self, BufRead, BufReader, ErrorKind, Result},
-    path::Path,
-    str::FromStr, ops::Add,
+    ops::{Add, Neg},
+    str::FromStr,
 };
 
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
+use sf21_22::{SIZES, output_path};
 
 use self::BotType::*;
 
 fn main() {
-    let file = File::open(Path::new("/home/rejyr/Rust Projects/sf21_22/output")).unwrap();
+    let file = File::open(output_path()).unwrap();
     let read = BufReader::new(&file);
 
     let results = parse_results(read).unwrap();
+
+    graph_data(&results);
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub fn graph_data(results: &Results) {
+    let bot_types = [
+        Random,
+        AlwaysPush,
+        AlwaysCapture,
+        MiniMax,
+        MiniMaxAdvance,
+        MiniMaxCapture,
+        MCTS,
+        MCTSAdvance,
+        MCTSCapture,
+    ];
+
+    print!("{:<14}: ", "size");
+    for size in SIZES {
+        print!("{:^9}|", size);
+    }
+    println!();
+    for bot_type in bot_types {
+        print!("{:<14}: ", format!("{:?}", bot_type));
+        for size in SIZES {
+            print!(
+                "{:^9}|",
+                results.get_cumulative(size as u32, bot_type).unwrap().combined()
+            );
+        }
+        println!();
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BotType {
     Random,
     AlwaysPush,
@@ -58,13 +91,27 @@ pub struct Results {
 
 impl Results {
     pub fn get(&self, size: u32, key: ResultKey) -> Option<WDL> {
-        self.inner.get(&size).map(|map| map.get(&key)).flatten().cloned()
+        self.inner
+            .get(&size)
+            .map(|map| map.get(&key))
+            .flatten()
+            .cloned()
     }
 
     pub fn get_cumulative(&self, size: u32, key: BotType) -> Option<WDL> {
         let map = self.inner.get(&size)?;
 
-        map.iter().filter(|(k, _v)| k.right == key || k.left == key).map(|(_k, v)| v.clone()).reduce(|acc, wdl| acc + wdl)
+        map.iter()
+            .filter_map(|(k, v)| {
+                if k.left == key {
+                    Some(v.clone())
+                } else if k.right == key {
+                    Some(-v.clone())
+                } else {
+                    None
+                }
+            })
+            .reduce(|acc, wdl| acc + wdl)
     }
 }
 
@@ -79,7 +126,19 @@ impl Add for WDL {
     type Output = WDL;
 
     fn add(self, rhs: Self) -> Self::Output {
-        WDL::new(self.win + rhs.win, self.draw + rhs.draw, self.loss + rhs.draw)
+        WDL::new(
+            self.win + rhs.win,
+            self.draw + rhs.draw,
+            self.loss + rhs.draw,
+        )
+    }
+}
+
+impl Neg for WDL {
+    type Output = WDL;
+
+    fn neg(self) -> Self::Output {
+        WDL::new(self.loss, self.draw, self.win)
     }
 }
 
@@ -141,8 +200,9 @@ fn capture_u32(capture: &Captures, name: &str) -> Result<u32> {
 
 fn parse_line(s: &str) -> Result<(ResultKey, WDL)> {
     fn parse_wdl(s: &str) -> Result<WDL> {
-        static RE_WDL: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r#"W:(?P<w>\d{1,4}),D:(?P<d>\d{1,4}),L:(?P<l>\d{1,4})"#).unwrap());
+        static RE_WDL: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r#"W:(?P<w>\d{1,4}),D:(?P<d>\d{1,4}),L:(?P<l>\d{1,4})"#).unwrap()
+        });
 
         let captures = RE_WDL
             .captures(s)

@@ -1,4 +1,4 @@
-use std::{fs::File, io::{Write, BufWriter}, path::Path, fmt::Debug};
+use std::{fs::File, io::{Write, BufWriter}, fmt::Debug};
 
 use board_game::{
     ai::{mcts::MCTSBot, minimax::MiniMaxBot, simple::RandomBot, solver::SolverHeuristic}, util::bot_game::{run, BotGameResult}, wdl::WDL,
@@ -9,7 +9,7 @@ use sf21_22::{
     bot::{
         heuristic::{AdvancementHeuristic, AlwaysCaptureBot, AlwaysPushBot, MaterialHeuristic},
         mcts_heuristic_bot::MCTSHeuristicBot,
-    },
+    }, SIZES, output_path,
 };
 
 fn main() {
@@ -20,11 +20,9 @@ fn main() {
     const GAMES_PER_SIDE: u32 = 500;
     const BOTH_SIDES: bool = true;
 
-    let file = File::create(Path::new("/home/rejyr/Rust Projects/sf21_22/output")).unwrap();
+    let file = File::create(output_path()).unwrap();
     let mut buf = BufWriter::new(file);
-    let board_size = [3, 4, 5, 6, 7, 8];
-    // let board_size = [3, 4];
-    for size in board_size {
+    for size in SIZES {
         println!("size: {size}");
         buf.write_fmt(format_args!("\n\nsize: {size}\n\n")).unwrap();
 

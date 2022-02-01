@@ -3,8 +3,8 @@ pub mod bot;
 pub mod consts;
 pub mod move_gen;
 
-pub const SIZES: [usize; 2] = [3, 4];
-// pub const SIZES: [usize; 6] = [3, 4, 5, 6, 7, 8];
+// pub const SIZES: [usize; 2] = [3, 4];
+pub const SIZES: [usize; 6] = [3, 4, 5, 6, 7, 8];
 
 use std::path::PathBuf;
 

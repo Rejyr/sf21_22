@@ -1,3 +1,6 @@
+//! Heuristics ([`Advancement`](AdvancementHeuristic), [`Material`](MaterialHeuristic))
+//! and the heuristic bots ([`AlwaysPush`](AlwaysPushBot), [`AlwaysCapture`](AlwaysCaptureBot))
+
 use std::{cmp::max, fmt::Debug};
 
 use board_game::{
@@ -12,6 +15,8 @@ use crate::{
     move_gen::{Mask, MoveGen},
 };
 
+/// North [pawn fill](https://www.chessprogramming.org/Pawn_Fills)
+/// using parallel prefix [Kogge-Stone routines](https://www.chessprogramming.org/Kogge-Stone_Algorithm)
 #[allow(non_snake_case)]
 pub fn N_fill(mut bb: u64) -> u64 {
     bb |= bb << 8;
@@ -20,6 +25,8 @@ pub fn N_fill(mut bb: u64) -> u64 {
     bb
 }
 
+/// South [pawn fill](https://www.chessprogramming.org/Pawn_Fills)
+/// using parallel prefix [Kogge-Stone routines](https://www.chessprogramming.org/Kogge-Stone_Algorithm)
 #[allow(non_snake_case)]
 pub fn S_fill(mut bb: u64) -> u64 {
     bb |= bb >> 8;
@@ -28,6 +35,7 @@ pub fn S_fill(mut bb: u64) -> u64 {
     bb
 }
 
+/// Returns an evaluation of how far the pawns are by counting the [rear-fill](https://www.chessprogramming.org/Pawn_Fills)
 pub fn advancement_eval(bb: u64, color: Color) -> u32 {
     match color {
         Color::White => S_fill(bb).count_ones(),
@@ -35,11 +43,13 @@ pub fn advancement_eval(bb: u64, color: Color) -> u32 {
     }
 }
 
+/// Returns an evaluation of the amount of pawns by counting the [population count](https://www.chessprogramming.org/Population_Count)
 pub fn material_eval(bb: u64) -> u32 {
     bb.count_ones()
 }
 
 #[derive(Debug, Clone)]
+/// A simplified [`SolverHeuristic`](SolverHeuristic) by converting to i32
 pub struct SolverHeuristicSimplified;
 
 impl Heuristic<Board> for SolverHeuristicSimplified {
@@ -55,16 +65,19 @@ impl Heuristic<Board> for SolverHeuristicSimplified {
 }
 
 #[derive(Debug, Clone)]
+/// Returns an evaluation of \# player's pawns - \# opponent's pawns
 pub struct MaterialHeuristic;
 
 impl Heuristic<Board> for MaterialHeuristic {
     type V = i32;
 
     fn value(&self, board: &Board, depth: u32) -> Self::V {
+        // if the board is done, it's infinity for winning, negative infinity for losing
         if board.is_done() {
             return SolverHeuristicSimplified.value(board, depth);
         }
 
+        // return the difference between the amount of the player's pawns and the amount of the opponent's pawns
         material_eval(board.pieces_to_move().0) as i32
             - material_eval(board.pieces_not_to_move().0) as i32
     }
@@ -75,16 +88,19 @@ impl Heuristic<Board> for MaterialHeuristic {
 }
 
 #[derive(Debug, Clone)]
+/// Returns an evaluation of how far the player's pawns are
 pub struct AdvancementHeuristic;
 
 impl Heuristic<Board> for AdvancementHeuristic {
     type V = i32;
 
     fn value(&self, board: &Board, depth: u32) -> Self::V {
+        // if the board is done, it's infinity for winning, negative infinity for losing
         if board.is_done() {
             return SolverHeuristicSimplified.value(board, depth);
         }
 
+        // return how far the pawns are
         advancement_eval(board.pieces_to_move().0, board.side_to_move()) as i32
     }
 
@@ -93,6 +109,7 @@ impl Heuristic<Board> for AdvancementHeuristic {
     }
 }
 
+/// The [`AlwaysPush`](AlwaysPushBot) bot. It always pushes a pawn or chooses a random move
 pub struct AlwaysPushBot<R: Rng> {
     rng: R,
 }
@@ -112,11 +129,13 @@ impl<R: Rng + Debug> Bot<Board> for AlwaysPushBot<R> {
 }
 
 impl<R: Rng> AlwaysPushBot<R> {
+    /// Creates a new [`AlwaysPushBot`](AlwaysPushBot)
     pub fn new(rng: R) -> Self {
         AlwaysPushBot { rng }
     }
 }
 
+/// The [`AlwaysCapture`](AlwaysCaptureBot) bot. It always captures a pawn or chooses a random move
 pub struct AlwaysCaptureBot<R: Rng> {
     rng: R,
 }
@@ -136,6 +155,7 @@ impl<R: Rng + Debug> Bot<Board> for AlwaysCaptureBot<R> {
 }
 
 impl<R: Rng> AlwaysCaptureBot<R> {
+    /// Creates a new [`AlwaysCaptureBot`](AlwaysCaptureBot)
     pub fn new(rng: R) -> Self {
         AlwaysCaptureBot { rng }
     }

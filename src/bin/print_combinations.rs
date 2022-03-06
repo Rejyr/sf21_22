@@ -25,12 +25,12 @@ fn main() {
         "MCTSMaterial",
     ];
     for (bot_l, name) in bots.into_iter().zip(bot_names.into_iter()) {
-        println!(r#"println!("Running (at {{}}): {}", OffsetDateTime::now_utc());"#, name);
+        println!(
+            r#"println!("Running (at {{}}): {}", OffsetDateTime::now_utc());"#,
+            name
+        );
         for bot_r in bots {
-            println!(
-                r#"r!(buf, size, || {}, || {});"#,
-                bot_l, bot_r
-            );
+            println!(r#"r!(buf, size, || {}, || {});"#, bot_l, bot_r);
         }
         println!()
     }

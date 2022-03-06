@@ -9,7 +9,7 @@ use std::{
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
-use sf21_22::{SIZES, output_path};
+use sf21_22::{output_path, SIZES};
 
 use self::BotType::*;
 
@@ -46,7 +46,10 @@ pub fn graph_data(results: &Results) {
         for size in SIZES {
             print!(
                 "{:^9}|",
-                results.get_cumulative(size as u32, bot_type).unwrap().combined()
+                results
+                    .get_cumulative(size as u32, bot_type)
+                    .unwrap()
+                    .combined()
             );
         }
         println!();
@@ -94,11 +97,7 @@ pub struct Results {
 
 impl Results {
     pub fn get(&self, size: u32, key: ResultKey) -> Option<WDL> {
-        self.inner
-            .get(&size)
-            .map(|map| map.get(&key))
-            .flatten()
-            .cloned()
+        self.inner.get(&size).and_then(|map| map.get(&key)).cloned()
     }
 
     pub fn get_cumulative(&self, size: u32, key: BotType) -> Option<WDL> {

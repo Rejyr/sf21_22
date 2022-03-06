@@ -1,3 +1,6 @@
+//! A copy of [`board-game`](board-game)'s [`MCTSBot`](board-game::ai::mcts::MCTSBot)
+//! with progressive bias
+
 use std::fmt::{Debug, Formatter};
 use std::marker::PhantomData;
 use std::num::NonZeroUsize;
@@ -13,8 +16,6 @@ use board_game::board::{Board, Outcome};
 use board_game::wdl::{Flip, OutcomeWDL, POV, WDL};
 use rand::prelude::IteratorRandom;
 
-// MCTSbot from board-game, with heuristics
-//
 fn new_node<M>(last_move: Option<M>, outcome: Option<OutcomeWDL>) -> Node<M> {
     let kind = match outcome {
         None => SNodeKind::Estimate(WDL::default()),
@@ -44,7 +45,12 @@ fn random_playout<B: Board>(mut board: B, rng: &mut impl Rng) -> Outcome {
     }
 }
 
-fn uct_heuristic<M>(node: &Node<M>, parent_visits: i64, exploration_weight: f32, heuristic_val: f32) -> f32 {
+fn uct_heuristic<M>(
+    node: &Node<M>,
+    parent_visits: i64,
+    exploration_weight: f32,
+    heuristic_val: f32,
+) -> f32 {
     //TODO continue investigating this, what uct value to use for solved (in practice lost and drawn) nodes?
     // if exploration_weight < 0.0 {
     //     let value_unit = (self.wdl().value() + 1.0) / 2.0;
@@ -142,7 +148,12 @@ fn mcts_solver_step<B: Board>(
         let picked = children
             .iter()
             .max_by_key(|&c| {
-                N32::from(uct_heuristic(&tree[c], parent_visits, exploration_weight, heuristic.value(curr_board, 0) as f32))
+                N32::from(uct_heuristic(
+                    &tree[c],
+                    parent_visits,
+                    exploration_weight,
+                    heuristic.value(curr_board, 0) as f32,
+                ))
             })
             .unwrap();
 
@@ -176,7 +187,7 @@ fn mcts_solver_step<B: Board>(
     (result, false)
 }
 
-pub fn mcts_build_tree<B: Board>(
+fn mcts_build_tree<B: Board>(
     root_board: &B,
     iterations: u64,
     exploration_weight: f32,
@@ -211,11 +222,18 @@ pub fn mcts_build_tree<B: Board>(
     tree
 }
 
+/// A copy of [`board-game`](board-game)'s [`MCTSBot`](board-game::ai::mcts::MCTSBot)
+/// with progressive bias
 pub struct MCTSHeuristicBot<B: Board, H: Heuristic<B>, R: Rng> {
+    /// How many iterations (MCTS playouts)
     iterations: u64,
+    /// The exploration factor, used in UCT
     exploration_weight: f32,
+    /// A Heuristic
     heuristic: H,
+    /// Random number generation for random playouts
     rng: R,
+    /// A marker for the type of board
     place_holder: PhantomData<B>,
 }
 
@@ -230,6 +248,7 @@ impl<B: Board, H: Heuristic<B>, R: Rng> Debug for MCTSHeuristicBot<B, H, R> {
 }
 
 impl<B: Board, H: Heuristic<B, V = i32> + Clone, R: Rng> MCTSHeuristicBot<B, H, R> {
+    /// Creates a new [`MCTSHeuristicbot`](MCTSHeuristicBot)
     pub fn new(iterations: u64, exploration_weight: f32, heuristic: H, rng: R) -> Self {
         assert!(iterations > 0);
         MCTSHeuristicBot {
@@ -241,6 +260,7 @@ impl<B: Board, H: Heuristic<B, V = i32> + Clone, R: Rng> MCTSHeuristicBot<B, H, 
         }
     }
 
+    /// Creates a `MCTS`[`Tree`](Tree)
     pub fn build_tree(&mut self, board: &B) -> Tree<B> {
         mcts_build_tree(
             board,

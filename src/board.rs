@@ -1,3 +1,5 @@
+//! Board representation of hexapawn
+
 use std::fmt::Display;
 use std::ops::ControlFlow;
 
@@ -12,15 +14,20 @@ use internal_iterator::InternalIterator;
 use internal_iterator::IteratorExt;
 
 use crate::consts::EMPTY_BB;
-use crate::consts::{RANKS, START_POS_WHITE, START_POS_BLACK};
+use crate::consts::{RANKS, START_POS_BLACK, START_POS_WHITE};
 use crate::move_gen::Move;
 use crate::move_gen::MoveGen;
 
+/// A representation of hexapawn of various sizes
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Board {
-    white: BitBoard,
+    /// White's pawns
+    white: BitBoard, // stored as a unsigned 64 bit integer bitboard
+    /// Black's pawns
     black: BitBoard,
+    /// The side to move
     side_to_move: Color,
+    /// The size of the board, from 3 to 8
     size: usize,
 }
 
@@ -42,7 +49,7 @@ impl Display for Board {
 
                 match (w_sq, b_sq) {
                     (0, 0) => f.write_str(" ")?,
-                    (1, 0) => f.write_str("♙")?, // white pawn
+                    (1, 0) => f.write_str("♙")?,    // white pawn
                     (0, 1) => f.write_str("♟︎")?, // black pawn
                     (1, 1) => panic!("Board has two pawns in the same place"),
                     _ => {}
@@ -67,6 +74,8 @@ impl Display for Board {
 }
 
 impl Board {
+    /// Creates a new `Board`
+    /// The size must be 3 to 8
     pub fn new(size: usize) -> Self {
         assert!(size > 2 && size < 9, "Invalid size, must be 3 to 8");
         Board {
@@ -77,6 +86,7 @@ impl Board {
         }
     }
 
+    /// Returns the `BitBoard` of a certain color's bitboard
     pub fn pieces(&self, color: Color) -> BitBoard {
         match color {
             Color::White => self.white,
@@ -84,6 +94,7 @@ impl Board {
         }
     }
 
+    /// Returns a mutable reference to a certain color's `BitBoard`
     pub fn pieces_mut(&mut self, color: Color) -> &mut BitBoard {
         match color {
             Color::White => &mut self.white,
@@ -91,30 +102,37 @@ impl Board {
         }
     }
 
+    /// Returns the `BitBoard` of the pieces to move
     pub fn pieces_to_move(&self) -> BitBoard {
         self.pieces(self.side_to_move)
     }
 
+    /// Returns a mutable reference to the `BitBoard` of the pieces to move
     pub fn pieces_to_move_mut(&mut self) -> &mut BitBoard {
         self.pieces_mut(self.side_to_move)
     }
 
+    /// Returns the `BitBoard` of the pieces not to move
     pub fn pieces_not_to_move(&self) -> BitBoard {
         self.pieces(!self.side_to_move)
     }
 
+    /// Returns a mutable reference to the `BitBoard` of the pieces not to move
     pub fn pieces_not_to_move_mut(&mut self) -> &mut BitBoard {
         self.pieces_mut(!self.side_to_move)
     }
 
+    /// Returns the side to move, White or Black
     pub fn side_to_move(&self) -> Color {
         self.side_to_move
     }
 
+    /// Returns a `BitBoard` of all empty squares
     pub fn empty(&self) -> BitBoard {
         !self.occupied()
     }
 
+    /// Returns a `BitBoard` of all occupied squares
     pub fn occupied(&self) -> BitBoard {
         self.white | self.black
     }
@@ -137,20 +155,25 @@ impl BoardTrait for Board {
     }
 
     fn play(&mut self, mv: Self::Move) {
+        // Convert the squares to bitboards
         let src_bb = BitBoard::from_square(mv.src());
         let dest_bb = BitBoard::from_square(mv.dest());
-        *self.pieces_to_move_mut() ^= src_bb | dest_bb;
-        *self.pieces_not_to_move_mut() &= !dest_bb;
-        self.side_to_move = !self.side_to_move;
+        *self.pieces_to_move_mut() ^= src_bb | dest_bb; // Move the pawn
+        *self.pieces_not_to_move_mut() &= !dest_bb; // Remove the captured pawn
+        self.side_to_move = !self.side_to_move; // Switch sides to move
     }
 
     fn outcome(&self) -> Option<board_game::board::Outcome> {
+        // if white's pawns reaches black's starting rank, white wins
         if self.white & BitBoard(RANKS[self.size - 1]) != EMPTY_BB {
             Some(Outcome::WonBy(Player::A))
+        // if white's pawns reaches black's starting rank, white wins
         } else if self.black & BitBoard(RANKS[0]) != EMPTY_BB {
             Some(Outcome::WonBy(Player::B))
+        // if there are no moves, it's a draw
         } else if MoveGen::new(self).len() == 0 {
             Some(Outcome::Draw)
+        // otherwise, the game is still ongoing
         } else {
             None
         }
@@ -175,6 +198,7 @@ impl<'a> BoardMoves<'a, Board> for Board {
     }
 }
 
+#[doc(hidden)]
 pub struct AllMoves;
 
 impl InternalIterator for AllMoves {
